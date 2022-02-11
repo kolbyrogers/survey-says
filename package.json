@@ -1,0 +1,20 @@
+{
+	"name": "midterm",
+	"version": "1.0.0",
+	"description": "",
+	"main": "app.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node server.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/csse4200/s22-project1-kolbyrogers.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/csse4200/s22-project1-kolbyrogers/issues"
+	},
+	"homepage": "https://github.com/csse4200/s22-project1-kolbyrogers#readme"
+}
