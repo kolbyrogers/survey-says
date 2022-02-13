@@ -1,11 +1,11 @@
 {
-	"name": "midterm",
+	"name": "SurveySays",
 	"version": "1.0.0",
 	"description": "",
-	"main": "app.js",
+	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "node server.js"
+		"start": "nodemon ./server/index.js"
 	},
 	"repository": {
 		"type": "git",
@@ -16,5 +16,10 @@
 	"bugs": {
 		"url": "https://github.com/csse4200/s22-project1-kolbyrogers/issues"
 	},
-	"homepage": "https://github.com/csse4200/s22-project1-kolbyrogers#readme"
+	"homepage": "https://github.com/csse4200/s22-project1-kolbyrogers#readme",
+	"dependencies": {
+		"bcrypt": "^5.0.1",
+		"express": "^4.17.2",
+		"mongoose": "^6.2.1"
+	}
 }
