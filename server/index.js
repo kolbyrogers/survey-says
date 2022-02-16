@@ -1,3 +1,4 @@
+const cors = require("cors");
 const express = require("express");
 const model = require("./model");
 const bcrypt = require("bcrypt");
@@ -8,12 +9,14 @@ const User = model.User;
 const app = express();
 const port = 8080;
 
+// MIDDLEWARE
 app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(cors());
 
 // USERS //////////////////////////////////////////////////////////////////////
 // get all users
 app.get("/users", (req, res) => {
-	res.set("Access-Control-Allow-Origin", "*");
 	User.find().then((users) => res.json(users));
 });
 // login user
@@ -27,11 +30,12 @@ app.post("/users/login", async (req, res) => {
 		!validPassword && res.status(400).send("Invalid Password");
 		// send user
 		res.status(200).json(user);
+		console.log("Login successful.");
 	} catch (err) {
-		res.status(500).json(err);
+		res.status(500);
 	}
 });
-// create new user
+// register user
 app.post("/users", async (req, res) => {
 	try {
 		// salt and hash password
@@ -45,14 +49,14 @@ app.post("/users", async (req, res) => {
 		});
 		// save user and respond
 		const user = await newUser.save();
-		res.set("Access-Control-Allow-Origin", "*");
-		res.status(201).send("Created");
+		console.log("User created.");
+		res.status(201).json(user);
 	} catch (err) {
 		res.status(500).json(err);
 	}
 });
 
-//update user
+// update user
 app.put("/users/:id", async (req, res) => {
 	if (req.body.userId === req.params.id) {
 		if (req.body.password) {
@@ -147,7 +151,6 @@ app.put("/users/:id/unfollow", async (req, res) => {
 // SURVEYS ///////////////////////////////////////////////////////////////////
 // get all posts
 app.get("/posts", (req, res) => {
-	res.set("Access-Control-Allow-Origin", "*");
 	Post.find().then((posts) => res.json(posts));
 });
 // create a post
@@ -203,7 +206,7 @@ app.put("/posts/:id/voteYes", async (req, res) => {
 		res.status(500).json(err);
 	}
 });
-// vote yes
+// vote no
 app.put("/posts/:id/voteNo", async (req, res) => {
 	try {
 		const post = await Post.findById(req.params.id);
@@ -237,7 +240,7 @@ app.get("/posts/following/all", async (req, res) => {
 				return Post.find({ userId: friendId });
 			}),
 		);
-		res.json(userPosts.concat(...friendPosts));
+		res.status(200).json(userPosts.concat(...friendPosts));
 	} catch (err) {
 		res.status(500).json(err);
 	}
@@ -245,5 +248,5 @@ app.get("/posts/following/all", async (req, res) => {
 ///////////////////////////////////////////////////////////////////////////
 
 app.listen(port, () => {
-	console.log(`SurveySays is listening on port ${port}`);
+	console.log(`App is listening on port ${port}`);
 });

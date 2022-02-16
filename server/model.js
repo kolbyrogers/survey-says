@@ -17,7 +17,6 @@ const User = mongoose.model("User", {
 		type: String,
 		require: true,
 		min: 5,
-		max: 20,
 		unique: true,
 	},
 	password: {
@@ -41,7 +40,7 @@ const Post = mongoose.model("Post", {
 	},
 	prompt: {
 		type: String,
-		max: 500,
+		max: 100,
 	},
 	title: {
 		type: String,

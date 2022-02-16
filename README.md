@@ -21,7 +21,6 @@ const User = mongoose.model("User", {
 		type: String,
 		require: true,
 		min: 5,
-		max: 20,
 		unique: true,
 	},
 	password: {
@@ -52,7 +51,7 @@ const Post = mongoose.model("Post", {
 	},
 	prompt: {
 		type: String,
-		max: 500,
+		max: 100,
 	},
 	title: {
 		type: String,
@@ -89,3 +88,21 @@ const Post = mongoose.model("Post", {
 | Vote Yes on Post          | PUT    | /posts/:id/voteYes   |
 | Vote No on Post           | PUT    | /posts/:id/voteNo    |
 | Delete post               | DELETE | /posts/:id           |
+
+## Password Hashing
+
+```js
+// salt and hash password
+const salt = await bcrypt.genSalt(5);
+const hashedPassword = await bcrypt.hash(req.body.password, salt);
+// create new user
+const newUser = new User({
+	username: req.body.username,
+	email: req.body.email,
+	password: hashedPassword,
+});
+// save user and respond
+const user = await newUser.save();
+res.set("Access-Control-Allow-Origin", "*");
+res.status(201).send("Created");
+```
