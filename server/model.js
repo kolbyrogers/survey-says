@@ -1,6 +1,4 @@
 const mongoose = require("mongoose");
-const { arrayBuffer } = require("stream/consumers");
-const { boolean } = require("webidl-conversions");
 mongoose.connect(
 	"mongodb+srv://krogers:MwgGeaBR8Fpswklj@cluster0.ka7qd.mongodb.net/surveySays?retryWrites=true&w=majority",
 );
@@ -8,21 +6,18 @@ mongoose.connect(
 const User = mongoose.model("User", {
 	username: {
 		type: String,
-		require: true,
-		min: 3,
-		max: 20,
+		required: true,
 		unique: true,
 	},
 	email: {
 		type: String,
-		require: true,
-		min: 5,
+		required: true,
 		unique: true,
 	},
 	password: {
 		type: String,
-		require: true,
-		min: 8,
+		required: true,
+		min: [8, "Password must be more than 8 characters"],
 	},
 	followers: {
 		type: Array,
@@ -34,18 +29,10 @@ const User = mongoose.model("User", {
 	},
 });
 const Post = mongoose.model("Post", {
-	userId: {
-		type: String,
-		require: true,
-	},
-	prompt: {
-		type: String,
-		max: 100,
-	},
-	title: {
-		type: String,
-		max: 20,
-	},
+	userId: String,
+	author: String,
+	prompt: String,
+	title: String,
 	votesYes: {
 		type: Array,
 		default: [],

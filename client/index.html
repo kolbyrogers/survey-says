@@ -12,27 +12,25 @@
 			integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
 			crossorigin="anonymous"
 		/>
+		<link rel="stylesheet" href="style.css" />
 	</head>
 	<body class="text-white text-center h-100 bg-dark">
 		<div id="app">
-			<div class="container">
+			<div class="container mt-5 pt-5">
 				<div class="row align-items-center">
-					<div class="col">
-						<h1 class="text-center"></h1>
-					</div>
+					<div class="col"></div>
 					<div class="col-8">
 						<!-- CENTER COLUMN -->
 						<!-- SIGNIN PAGE -->
 						<div v-if="showSignIn">
 							<h1 class="p-5 text-center">Welcome to SurveySays</h1>
-							<h2 class="p-5 text-center">Sign in or Register</h2>
 							<form>
 								<div class="mb-3">
 									<label for="signInEmail" class="form-label">Email</label>
 									<input
 										type="email"
 										v-model="signInEmail"
-										class="form-control"
+										:class="{ 'border border-danger': badEmail, 'form-control': formControl }"
 										id="signInEmail"
 										placeholder="name@example.com"
 									/>
@@ -42,8 +40,9 @@
 									<input
 										type="password"
 										v-model="signInPass"
-										class="form-control"
+										:class="{ 'border border-danger': badPassword, 'form-control': formControl }"
 										id="signInPass"
+										placeholder="* * * * * * * *"
 									/>
 								</div>
 								<button
@@ -54,13 +53,17 @@
 								>
 									Sign In
 								</button>
-								<button
-									type="button"
-									class="btn-lg btn-success m-3"
-									v-on:click="showRegistration"
-								>
-									Register
-								</button>
+								<div v-if="errors.length">
+									<div class="m-3" v-for="error in errors">
+										<h5>{{ error }}</h5>
+									</div>
+								</div>
+								<div class="m-5" v-if="!signInEmail">
+									<p class="mt-5">New Here?</p>
+									<button type="button" class="btn btn-success" v-on:click="showRegistration">
+										Sign Up
+									</button>
+								</div>
 							</form>
 						</div>
 						<!-- END SIGNIN PAGE -->
@@ -72,10 +75,11 @@
 								<div class="mb-3">
 									<label for="registerName" class="form-label">Username</label>
 									<input
-										type="email"
+										type="text"
 										v-model="registerName"
-										class="form-control"
+										:class="{ 'border border-danger': badUsername, 'form-control': formControl }"
 										id="registerName"
+										placeholder="Bob Bobbers"
 									/>
 								</div>
 								<div class="mb-3">
@@ -83,9 +87,10 @@
 									<input
 										type="email"
 										v-model="registerEmail"
-										class="form-control"
+										:class="{ 'border border-danger': badEmail, 'form-control': formControl }"
 										id="registerEmail"
 										required="true"
+										placeholder="name@example.com"
 									/>
 								</div>
 								<div class="mb-3">
@@ -93,61 +98,160 @@
 									<input
 										type="password"
 										v-model="registerPass"
-										class="form-control"
+										:class="{ 'border border-danger': badPassword, 'form-control': formControl }"
 										id="registerPass"
+										placeholder="* * * * * * * *"
+									/>
+								</div>
+								<button type="button" class="btn-lg btn-success m-3" v-on:click="registerUser">
+									Register
+								</button>
+								<div v-if="errors.length">
+									<div class="m-3" v-for="error in errors">
+										<p>{{ error }}</p>
+									</div>
+								</div>
+							</form>
+						</div>
+						<!-- END REGISTRATION PAGE -->
+						<!-- FINDFRIENDS PAGE -->
+						<div v-if="showFindFriends">
+							<h2 class="p-5 text-center">Friends</h2>
+							<button class="btn-lg btn-secondary m-3" v-on:click="showMain">Home</button>
+							<div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
+								<div class="p-3 col" v-for="friend in friends">
+									<div class="card bg-dark border-success mb-3">
+										<div class="card-body text-white">
+											<h5 class="card-title">{{ friend.username }}</h5>
+											<button
+												class="btn btn-danger position-absolute top-0 end-0"
+												v-on:click="unfollowUser(friend._id)"
+											>
+												Unfriend
+											</button>
+										</div>
+										<div class="card-footer bg-transparent border-success">
+											{{ friend.following.length }} following | {{ friend.followers.length }}
+											followers
+										</div>
+									</div>
+								</div>
+							</div>
+							<h3 class="p-5 text-center">Find more Friends</h3>
+							<form>
+								<div class="mb-3">
+									<label for="searchUsername" class="form-label">Username</label>
+									<input
+										type="text"
+										v-model="searchUsername"
+										class="form-control"
+										id="searchUsername"
+										placeholder="Bob Bobbers"
 									/>
 								</div>
 								<button
 									type="button"
-									class="btn-lg btn-success m-3"
-									v-on:click="registerUser"
+									class="btn-lg btn-primary m-3"
+									v-if="searchUsername"
+									v-on:click="searchForFriends"
 								>
-									Register
+									Search
 								</button>
+								<div v-if="errors.length">
+									<div class="m-3" v-for="error in errors">
+										<h5>{{ error }}</h5>
+									</div>
+								</div>
 							</form>
+							<ul class="list-group">
+								<li
+									v-for="friend in friendsFound"
+									class="m-3 p-3 list-group-item d-flex justify-content-between align-items-center"
+								>
+									{{ friend.username }}
+									<button @click="followUser(friend._id)" class="btn btn-success">
+										Befriend {{ friend.username }}
+									</button>
+								</li>
+							</ul>
 						</div>
-						<!-- END REGISTRATION PAGE -->
+						<!-- END FINDFRIENDS PAGE -->
 						<!-- MAIN PAGE -->
 						<div v-if="showMainPage">
-							<h1 class="p-5 text-center">Welcome {{ this.name }}</h1>
-							<button class="btn-lg btn-success mb-3" v-on:click="makeSurvey">
-								Make Survey
+							<h1 class="p-5 text-center">Welcome, {{ this.name }}</h1>
+							<button class="btn-lg btn-success m-3" v-on:click="makeSurvey">Make Survey</button>
+							<button class="btn-lg btn-primary m-3" v-on:click="findFriends">Friends</button
+							><button class="btn-lg btn-secondary m-3" v-on:click="showExplorePage">
+								Explore
 							</button>
-
 							<div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
 								<div v-for="survey in surveys" class="col">
 									<div class="card bg-dark border-primary mb-3">
 										<div class="card-header border-primary">
-											{{ survey.userId }} asked...
 											<button
+												v-if="isUsersPost(survey.userId)"
 												class="btn btn-danger position-absolute top-0 end-0"
-												v-on:click="deletePost"
+												v-on:click="deletePost(survey._id)"
 											>
 												X
 											</button>
+											<h5 class="card-title">{{ survey.title }}</h5>
 										</div>
 										<div class="card-body text-white">
-											<h5 class="card-title">{{ survey.title }}</h5>
-											<p class="card-text">{{ survey.prompt }}</p>
+											{{ survey.author }} asked...
+											<h5 class="py-3 card-text">{{ survey.prompt }}</h5>
 										</div>
 										<div class="card-footer bg-transparent border-primary">
-											{{ survey.votesYes.length }} / {{ survey.votesNo.length
-											}}
+											{{ survey.votesYes.length }} / {{ survey.votesNo.length }}
 										</div>
 									</div>
-									<button class="btn btn-success m-3 px-5" v-on:click="voteYes">
+									<button class="btn btn-success m-3 px-5" v-on:click="voteYes(survey._id)">
 										Yes
 									</button>
-									<button class="btn btn-danger m-3 px-5" v-on:click="voteNo">
+									<button class="btn btn-danger m-3 px-5" v-on:click="voteNo(survey._id)">
 										No
 									</button>
 								</div>
 							</div>
 						</div>
 						<!-- END MAIN PAGE -->
+						<!-- EXPLORE PAGE -->
+						<div v-if="showExplore">
+							<h1 class="p-5 text-center">Explore</h1>
+							<button class="btn-lg btn-secondary m-3" v-on:click="showMain">Home</button>
+							<div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
+								<div v-for="survey in surveys" class="col">
+									<div class="card bg-dark border-primary mb-3">
+										<div class="card-header border-primary">
+											<button
+												v-if="isUsersPost(survey.userId)"
+												class="btn btn-danger position-absolute top-0 end-0"
+												v-on:click="deletePost(survey._id)"
+											>
+												X
+											</button>
+											<h5 class="card-title">{{ survey.title }}</h5>
+										</div>
+										<div class="card-body text-white">
+											{{ survey.author }} asked...
+											<h5 class="py-3 card-text">{{ survey.prompt }}</h5>
+										</div>
+										<div class="card-footer bg-transparent border-primary">
+											{{ survey.votesYes.length }} / {{ survey.votesNo.length }}
+										</div>
+									</div>
+									<button class="btn btn-success m-3 px-5" v-on:click="voteYes(survey._id)">
+										Yes
+									</button>
+									<button class="btn btn-danger m-3 px-5" v-on:click="voteNo(survey._id)">
+										No
+									</button>
+								</div>
+							</div>
+						</div>
+						<!-- END EXPLORE PAGE -->
 						<!-- ADD SURVEY PAGE -->
 						<div v-if="showMakeSurvey">
-							<h1 class="p-5 text-center">Welcome to SurveySays</h1>
 							<h2 class="p-5 text-center">Fill in the form to create a survey</h2>
 							<form>
 								<div class="mb-3">
@@ -155,33 +259,30 @@
 									<input
 										type="text"
 										v-model="inputTitle"
-										class="form-control"
+										:class="{ 'border border-danger': badTitle, 'form-control': formControl }"
 										id="inputTitle"
 									/>
 								</div>
 								<div class="mb-3">
 									<label for="inputPrompt" class="form-label">Prompt</label>
 									<textarea
-										class="form-control"
+										:class="{ 'border border-danger': badPrompt, 'form-control': formControl }"
 										id="inputPrompt"
 										v-model="inputPrompt"
 										rows="3"
 									></textarea>
 								</div>
-								<button
-									type="button"
-									class="btn-lg btn-success m-3"
-									v-on:click="addPost"
-								>
+								<button type="button" class="btn-lg btn-success m-3" v-on:click="addPost">
 									Create
 								</button>
-								<button
-									type="button"
-									class="btn-lg btn-danger m-3"
-									v-on:click="showMain"
-								>
-									Cancel
+								<button type="button" class="btn-lg btn-danger m-3" v-on:click="showMain">
+									Go Back
 								</button>
+								<div v-if="errors.length">
+									<div class="m-3" v-for="error in errors">
+										<h5>{{ error }}</h5>
+									</div>
+								</div>
 							</form>
 						</div>
 						<!-- END ADD SURVEY PAGE -->

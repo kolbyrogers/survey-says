@@ -6,27 +6,22 @@
 
 ### Users:
 
-#### Mongoose model:
-
 ```js
 const User = mongoose.model("User", {
 	username: {
 		type: String,
-		require: true,
-		min: 3,
-		max: 20,
+		required: true,
 		unique: true,
 	},
 	email: {
 		type: String,
-		require: true,
-		min: 5,
+		required: true,
 		unique: true,
 	},
 	password: {
 		type: String,
-		require: true,
-		min: 8,
+		required: true,
+		min: [8, "Password must be more than 8 characters"],
 	},
 	followers: {
 		type: Array,
@@ -41,22 +36,12 @@ const User = mongoose.model("User", {
 
 ### Posts:
 
-#### Mongoose model:
-
 ```js
 const Post = mongoose.model("Post", {
-	userId: {
-		type: String,
-		require: true,
-	},
-	prompt: {
-		type: String,
-		max: 100,
-	},
-	title: {
-		type: String,
-		max: 20,
-	},
+	userId: String,
+	author: String,
+	prompt: String,
+	title: String,
 	votesYes: {
 		type: Array,
 		default: [],
@@ -70,39 +55,33 @@ const Post = mongoose.model("Post", {
 
 ## REST Endpoints
 
-| Name                      | Method | Path                 |
-| ------------------------- | ------ | -------------------- |
-| Get all users             | GET    | /users               |
-| Get one user              | GET    | /users/:id           |
-| Create new user           | POST   | /users               |
-| Login user                | POST   | /users/login         |
-| Update user               | PUT    | /users/:id           |
-| Follow user               | PUT    | /users/:id/follow    |
-| Unfollow user             | PUT    | /users/:id/unfollow  |
-| Delete user               | DELETE | /users/:id           |
-| Get all posts             | GET    | /posts               |
-| Get all posts (following) | GET    | /posts/following/all |
-| Get one post              | GET    | /posts/:id           |
-| Create new post           | POST   | /posts               |
-| Update post               | PUT    | /posts/:id           |
-| Vote Yes on Post          | PUT    | /posts/:id/voteYes   |
-| Vote No on Post           | PUT    | /posts/:id/voteNo    |
-| Delete post               | DELETE | /posts/:id           |
+| Name                      | Method | Path                    |
+| ------------------------- | ------ | ----------------------- |
+| Get all users             | GET    | /users                  |
+| Get one user              | GET    | /users/search/:username |
+| Get all users (following) | GET    | /following/:id          |
+| Login user                | POST   | /users/login            |
+| Create new user           | POST   | /users                  |
+| Follow user               | PUT    | /users/:id/follow       |
+| Unfollow user             | PUT    | /users/:id/unfollow     |
+| ------------------------- | ------ | ----------------------- |
+| Get all posts             | GET    | /posts                  |
+| Get all posts (following) | GET    | /posts/following/all    |
+| Create new post           | POST   | /posts                  |
+| Update post               | PUT    | /posts/:id              |
+| Vote Yes on Post          | PUT    | /posts/:id/voteYes      |
+| Vote No on Post           | PUT    | /posts/:id/voteNo       |
+| Delete post               | DELETE | /posts/:id              |
 
 ## Password Hashing
 
 ```js
 // salt and hash password
-const salt = await bcrypt.genSalt(5);
-const hashedPassword = await bcrypt.hash(req.body.password, salt);
+const hashedPassword = await bcrypt.hash(req.body.password, 5);
 // create new user
 const newUser = new User({
 	username: req.body.username,
 	email: req.body.email,
 	password: hashedPassword,
 });
-// save user and respond
-const user = await newUser.save();
-res.set("Access-Control-Allow-Origin", "*");
-res.status(201).send("Created");
 ```
