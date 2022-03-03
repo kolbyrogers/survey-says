@@ -1,4 +1,4 @@
-const SERVER_URL = "https://";
+const SERVER_URL = "https://survey-says-4200.herokuapp.com/";
 var app = new Vue({
 	el: "#app",
 	data: {
