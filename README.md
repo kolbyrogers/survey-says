@@ -2,6 +2,8 @@
 
 ## Heroku Deployment
 
+### TODO
+
 ## Resources
 
 ### Users:
@@ -21,7 +23,7 @@ const User = mongoose.model("User", {
 	password: {
 		type: String,
 		required: true,
-		min: [8, "Password must be more than 8 characters"],
+		min: [8, "Password must be at least 8 characters"],
 	},
 	followers: {
 		type: Array,
@@ -54,6 +56,8 @@ const Post = mongoose.model("Post", {
 ```
 
 ## REST Endpoints
+
+### NEED UPDATING
 
 | Name                      | Method | Path                    |
 | ------------------------- | ------ | ----------------------- |
