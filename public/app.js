@@ -1,5 +1,5 @@
-const SERVER_URL = "https://survey-says-4200.herokuapp.com";
-// const SERVER_URL = "http://localhost:8080";
+// const SERVER_URL = "https://survey-says-4200.herokuapp.com";
+const SERVER_URL = "http://localhost:8080";
 var app = new Vue({
 	el: "#app",
 	data: {
@@ -62,8 +62,7 @@ var app = new Vue({
 			);
 		},
 		isUsersPost: async function (postUserId) {
-			const user = this.getUser();
-			return user._id == postUserId;
+			return false;
 		},
 
 		// display
@@ -145,7 +144,6 @@ var app = new Vue({
 			}).then((res) => {
 				if (res.status == 200) {
 					res.json().then((data) => {
-						this.name = data.username;
 						return data;
 					});
 				} else if (res.status == 401) {
@@ -286,6 +284,10 @@ var app = new Vue({
 				if (res.status == 200) {
 					res.json().then((data) => {
 						this.friends = data;
+						console.log("Friends:", this.friends);
+						for (const friend of this.friends) {
+							console.log(friend.username);
+						}
 					});
 				}
 			});

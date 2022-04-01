@@ -66,6 +66,7 @@ passport.deserializeUser(async function (userId, done) {
 // USERS
 // get all users | testing only
 app.get("/users", (req, res) => {
+	console.log("- Get all users -");
 	User.find().then((users) => res.json(users));
 });
 //search for users
@@ -86,6 +87,7 @@ app.get("/users/search/:username", async (req, res) => {
 });
 //get all following
 app.get("/friends", async (req, res) => {
+	console.log("- Get all friends -");
 	try {
 		const following = [];
 		const user = await User.findById(req.user._id);
@@ -102,11 +104,12 @@ app.get("/friends", async (req, res) => {
 });
 // authenticate user
 app.post("/sessions", passport.authenticate("local"), function (req, res) {
-	// passport handles
+	console.log("- Login user -");
 	res.sendStatus(201);
 });
 
 app.get("/session", function (req, res) {
+	console.log("- Get session (user) -");
 	if (req.user) {
 		res.json(req.user);
 	} else {
@@ -114,11 +117,13 @@ app.get("/session", function (req, res) {
 	}
 });
 app.delete("/session", function (req, res) {
+	console.log("- Logout -");
 	req.logout();
 	res.sendStatus(204);
 });
 // register user
 app.post("/users", async (req, res) => {
+	console.log("- Register user -");
 	try {
 		const hashedPassword = await bcrypt.hash(req.body.password, 5);
 		const newUser = new User({
@@ -139,6 +144,7 @@ app.post("/users", async (req, res) => {
 });
 //follow a user
 app.put("/friends/:id", async (req, res) => {
+	console.log("- Follow user -");
 	if (req.user) {
 		if (req.user._id !== req.params.id) {
 			try {
@@ -164,7 +170,7 @@ app.put("/friends/:id", async (req, res) => {
 });
 // unfollow a user
 app.put("/unfriends/:id", async (req, res) => {
-	// bad to have verbs in path
+	console.log("- Unfollow user -");
 	if (req.user) {
 		if (req.user._id !== req.params.id) {
 			try {
@@ -191,6 +197,7 @@ app.put("/unfriends/:id", async (req, res) => {
 // SURVEYS
 // get all posts
 app.get("/posts", (req, res) => {
+	console.log("- Get all posts -");
 	if (req.user) {
 		Post.find().then((posts) => res.json(posts));
 	} else {
@@ -199,6 +206,7 @@ app.get("/posts", (req, res) => {
 });
 // get all posts (following)
 app.get("/posts/following", async (req, res) => {
+	console.log("- Get all friends posts -");
 	if (req.user) {
 		try {
 			const currentUser = await User.findById(req.user._id);
@@ -219,6 +227,7 @@ app.get("/posts/following", async (req, res) => {
 });
 // create a post
 app.post("/posts", async (req, res) => {
+	console.log("- Create post -");
 	if (req.user) {
 		const newPost = new Post({
 			userId: req.user._id,
@@ -239,6 +248,7 @@ app.post("/posts", async (req, res) => {
 });
 // update a post
 app.put("/posts/:id", async (req, res) => {
+	console.log("- Update post -");
 	if (req.user) {
 		try {
 			const post = await Post.findById(req.params.id);
@@ -257,6 +267,7 @@ app.put("/posts/:id", async (req, res) => {
 });
 // vote yes
 app.put("/posts/:id/votesYes", async (req, res) => {
+	console.log("- Vote yes -");
 	if (req.user) {
 		try {
 			const post = await Post.findById(req.params.id);
@@ -280,6 +291,7 @@ app.put("/posts/:id/votesYes", async (req, res) => {
 });
 // vote no
 app.put("/posts/:id/votesNo", async (req, res) => {
+	console.log("- Vote no -");
 	if (req.user) {
 		try {
 			const post = await Post.findById(req.params.id);
@@ -303,6 +315,7 @@ app.put("/posts/:id/votesNo", async (req, res) => {
 });
 // delete a post
 app.delete("/posts/:id", async (req, res) => {
+	console.log("- Delete post -");
 	if (req.user) {
 		try {
 			const post = await Post.findById(req.params.id);
