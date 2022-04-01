@@ -1,5 +1,5 @@
-// const SERVER_URL = "https://survey-says-4200.herokuapp.com";
-const SERVER_URL = "http://localhost:8080";
+const SERVER_URL = "https://survey-says-4200.herokuapp.com";
+// const SERVER_URL = "http://localhost:8080";
 var app = new Vue({
 	el: "#app",
 	data: {
