@@ -214,7 +214,6 @@ var app = new Vue({
 			}).then((res) => {
 				this.resetErrors();
 				if (res.status == 201) {
-					console.log("User created. Logging in...");
 					this.signInEmail = this.registerEmail;
 					this.signInPass = this.registerPass;
 					this.loginUser();
@@ -284,10 +283,6 @@ var app = new Vue({
 				if (res.status == 200) {
 					res.json().then((data) => {
 						this.friends = data;
-						console.log("Friends:", this.friends);
-						for (const friend of this.friends) {
-							console.log(friend.username);
-						}
 					});
 				}
 			});
