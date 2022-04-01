@@ -401,9 +401,11 @@ var app = new Vue({
 				method: "GET",
 				credentials: "include",
 			}).then((res) => {
-				res.json().then((data) => {
-					this.surveys = data;
-				});
+				if (res.status == 200) {
+					res.json().then((data) => {
+						this.surveys = data;
+					});
+				}
 			});
 		},
 	},
