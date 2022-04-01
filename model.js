@@ -29,7 +29,10 @@ const User = mongoose.model("User", {
 	},
 });
 const Post = mongoose.model("Post", {
-	userId: String,
+	userId: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "User",
+	},
 	author: String,
 	prompt: String,
 	title: String,

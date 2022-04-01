@@ -24,7 +24,7 @@
 						<!-- SIGNIN PAGE -->
 						<div v-if="showSignIn">
 							<h1 class="p-5 text-center">Welcome to SurveySays</h1>
-							<form class="px-5 mx-5">
+							<form class="px-5 mx-5" onkeydown="return event.key != 'Enter';">
 								<div class="mb-3">
 									<label for="signInEmail" class="form-label">Email</label>
 									<input
@@ -71,7 +71,7 @@
 						<div v-if="showRegistrationPage">
 							<h1 class="p-5 text-center">Welcome to SurveySays</h1>
 							<h2 class="pb-5 text-center">Fill in the form to register</h2>
-							<form class="px-5 mx-5">
+							<form class="px-5 mx-5" onkeydown="return event.key != 'Enter';">
 								<div class="mb-3">
 									<label for="registerName" class="form-label">Username</label>
 									<input
@@ -116,8 +116,8 @@
 						<!-- END REGISTRATION PAGE -->
 						<!-- FINDFRIENDS PAGE -->
 						<div v-if="showFindFriends">
+							<h1 class="p-5 text-center">Friends</h2>
 							<button class="btn-lg btn-secondary m-3" v-on:click="showMain">Home</button>
-							<h2 class="p-3 text-center">Friends</h2>
 							<div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
 								<div class="p-3 col" v-for="friend in friends">
 									<div class="card bg-dark border-success mb-3">
@@ -138,7 +138,7 @@
 								</div>
 							</div>
 							<h3 class="p-5 text-center">Find more Friends</h3>
-							<form class="px-5 mx-5">
+							<form class="px-5 mx-5" onkeydown="return event.key != 'Enter';">
 								<div class="mb-3">
 									<label for="searchUsername" class="form-label">Username</label>
 									<input
@@ -180,10 +180,9 @@
 						<div v-if="showMainPage">
 							<h1 class="p-5 text-center">Welcome, {{ this.name }}</h1>
 							<button class="btn-lg btn-success m-3" v-on:click="makeSurvey">Make Survey</button>
-							<button class="btn-lg btn-primary m-3" v-on:click="findFriends">Friends</button
-							><button class="btn-lg btn-secondary m-3" v-on:click="showExplorePage">
-								Explore
-							</button>
+							<button class="btn-lg btn-primary m-3" v-on:click="findFriends">Friends</button>
+							<button class="btn-lg btn-secondary m-3" v-on:click="showExplorePage">Explore</button>
+							<button class="btn-lg btn-danger m-3" v-on:click="logout">Logout</button>
 							<div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
 								<div v-for="survey in surveys" class="col">
 									<div class="card bg-dark border-primary mb-3">
@@ -202,7 +201,13 @@
 											<h5 class="py-3 card-text">{{ survey.prompt }}</h5>
 										</div>
 										<div class="card-footer bg-transparent border-primary">
-											{{ survey.votesYes.length }} / {{ survey.votesNo.length }}
+											<span class="text-success">
+											{{ survey.votesYes.length }}
+											</span>
+											/
+											<span class="text-danger">
+											{{ survey.votesNo.length }}
+											</span>
 										</div>
 									</div>
 									<button class="btn btn-success m-3 px-5" v-on:click="voteYes(survey._id)">
@@ -237,7 +242,13 @@
 											<h5 class="py-3 card-text">{{ survey.prompt }}</h5>
 										</div>
 										<div class="card-footer bg-transparent border-primary">
-											{{ survey.votesYes.length }} / {{ survey.votesNo.length }}
+											<span class="text-success">
+											{{ survey.votesYes.length }}
+											</span>
+											/
+											<span class="text-danger">
+											{{ survey.votesNo.length }}
+											</span>
 										</div>
 									</div>
 									<button class="btn btn-success m-3 px-5" v-on:click="voteYes(survey._id)">
@@ -253,7 +264,7 @@
 						<!-- ADD SURVEY PAGE -->
 						<div v-if="showMakeSurvey">
 							<h2 class="p-5 text-center">Fill in the form to create a survey</h2>
-							<form class="px-5 mx-5">
+							<form class="px-5 mx-5" onkeydown="return event.key != 'Enter';">
 								<div class="mb-3">
 									<label for="inputTitle" class="form-label">Title</label>
 									<input
@@ -276,7 +287,7 @@
 									Create
 								</button>
 								<button type="button" class="btn-lg btn-danger m-3" v-on:click="showMain">
-									Go Back
+									Cancel
 								</button>
 								<div v-if="errors.length">
 									<div class="m-3" v-for="error in errors">

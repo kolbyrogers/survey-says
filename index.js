@@ -1,8 +1,11 @@
 const cors = require("cors");
 const express = require("express");
-const model = require("./model");
 const bcrypt = require("bcrypt");
+const session = require("express-session");
+const passport = require("passport");
+const passportLocal = require("passport-local");
 
+const model = require("./model");
 const Post = model.Post;
 const User = model.User;
 
@@ -14,6 +17,51 @@ app.use(express.static("public"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors());
+app.use(
+	session({
+		secret: "q23w4se5drtfyguhijnomk",
+		resave: false,
+		saveUninitialized: true,
+	}),
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(
+	new passportLocal.Strategy(
+		{
+			usernameField: "email",
+			passwordField: "plainPassword",
+		},
+		async function (email, plainPassword, done) {
+			try {
+				const user = await User.findOne({ email: email });
+				if (!user) {
+					return done(null, false, { message: "User not found" });
+				}
+				const validPassword = await bcrypt.compare(plainPassword, user.password);
+				if (!validPassword) {
+					done(null, false, { message: "Bad Password" });
+				} else {
+					return done(null, user);
+				}
+			} catch (err) {
+				return done(err);
+			}
+		},
+	),
+);
+passport.serializeUser(function (user, done) {
+	done(null, user._id);
+});
+passport.deserializeUser(async function (userId, done) {
+	try {
+		const user = await User.findOne({ _id: userId });
+		done(null, user);
+	} catch (err) {
+		done(err);
+	}
+});
 
 // USERS
 // get all users | testing only
@@ -37,10 +85,10 @@ app.get("/users/search/:username", async (req, res) => {
 	}
 });
 //get all following
-app.get("/following/:id", async (req, res) => {
+app.get("/following", async (req, res) => {
 	try {
 		const following = [];
-		const user = await User.findById(req.params.id);
+		const user = await User.findById(req.user._id);
 		if (user.following) {
 			for (const friendId of user.following) {
 				const user = await User.findById(friendId);
@@ -52,24 +100,22 @@ app.get("/following/:id", async (req, res) => {
 		res.status(500).json(err);
 	}
 });
-// login user
-app.post("/users/login", async (req, res) => {
-	// bad to use verbs in path...
-	try {
-		const user = await User.findOne({ email: req.body.email });
-		if (!user) {
-			res.status(404).send("User not found");
-			return;
-		}
-		const validPassword = await bcrypt.compare(req.body.password, user.password);
-		if (!validPassword) {
-			res.status(403).send("Invalid Password");
-			return;
-		}
-		res.status(200).json(user);
-	} catch (err) {
-		res.status(500).json(err);
+// authenticate user
+app.post("/sessions", passport.authenticate("local"), function (req, res) {
+	// passport handles
+	res.sendStatus(201);
+});
+
+app.get("/session", function (req, res) {
+	if (req.user) {
+		res.json(req.user);
+	} else {
+		res.sendStatus(401);
 	}
+});
+app.delete("/session", function (req, res) {
+	req.logout();
+	res.sendStatus(204);
 });
 // register user
 app.post("/users", async (req, res) => {
@@ -86,25 +132,26 @@ app.post("/users", async (req, res) => {
 		if (err.code === 11000) {
 			res.status(409).json("User already exists");
 		} else {
+			console.error("ERROR:", err);
 			res.status(500).json(err);
 		}
 	}
 });
 //follow a user
-app.put("/users/:id/follow", async (req, res) => {
-	// bad to have verbs in path
-	if (req.body.userId !== req.params.id) {
+app.put("/friends/:id", async (req, res) => {
+	if (req.user._id !== req.params.id) {
 		try {
 			const user = await User.findById(req.params.id);
-			const currentUser = await User.findById(req.body.userId);
-			if (!user.followers.includes(req.body.userId)) {
-				await user.updateOne({ $push: { followers: req.body.userId } });
+			const currentUser = await User.findById(req.user._id);
+			if (!user.followers.includes(req.user._id)) {
+				await user.updateOne({ $push: { followers: req.user._id } });
 				await currentUser.updateOne({ $push: { following: req.params.id } });
 				res.status(200).json("User followed");
 			} else {
 				res.status(403).json("You already follow this user");
 			}
 		} catch (err) {
+			console.log(err);
 			res.status(500).json(err);
 		}
 	} else {
@@ -112,14 +159,14 @@ app.put("/users/:id/follow", async (req, res) => {
 	}
 });
 // unfollow a user
-app.put("/users/:id/unfollow", async (req, res) => {
+app.put("/unfriends/:id", async (req, res) => {
 	// bad to have verbs in path
-	if (req.body.userId !== req.params.id) {
+	if (req.user._id !== req.params.id) {
 		try {
 			const user = await User.findById(req.params.id);
-			const currentUser = await User.findById(req.body.userId);
-			if (user.followers.includes(req.body.userId)) {
-				await user.updateOne({ $pull: { followers: req.body.userId } });
+			const currentUser = await User.findById(req.user._id);
+			if (user.followers.includes(req.user._id)) {
+				await user.updateOne({ $pull: { followers: req.user._id } });
 				await currentUser.updateOne({ $pull: { following: req.params.id } });
 				res.status(200).json("User unfollowed");
 			} else {
@@ -139,9 +186,9 @@ app.get("/posts", (req, res) => {
 	Post.find().then((posts) => res.json(posts));
 });
 // get all posts (following)
-app.get("/posts/following/:id", async (req, res) => {
+app.get("/posts/following", async (req, res) => {
 	try {
-		const currentUser = await User.findById(req.params.id);
+		const currentUser = await User.findById(req.user._id);
 		const userPosts = await Post.find({ userId: currentUser._id });
 		const friendPosts = await Promise.all(
 			currentUser.following.map((friendId) => {
@@ -150,16 +197,23 @@ app.get("/posts/following/:id", async (req, res) => {
 		);
 		res.status(200).json(userPosts.concat(...friendPosts));
 	} catch (err) {
+		console.error(err);
 		res.status(500).json(err);
 	}
 });
 // create a post
 app.post("/posts", async (req, res) => {
-	const newPost = new Post(req.body);
+	const newPost = new Post({
+		userId: req.user._id,
+		author: req.user.username,
+		prompt: req.body.prompt,
+		title: req.body.title,
+	});
 	try {
 		const savedPost = await newPost.save();
 		res.status(201).json("Post created");
 	} catch (err) {
+		console.error(err);
 		res.status(500).json(err);
 	}
 });
@@ -178,39 +232,39 @@ app.put("/posts/:id", async (req, res) => {
 	}
 });
 // vote yes
-app.put("/posts/:id/voteYes", async (req, res) => {
+app.put("/posts/:id/votesYes", async (req, res) => {
 	// bad to have verbs in path
 	try {
 		const post = await Post.findById(req.params.id);
 
-		if (post.votesNo.includes(req.body.userId)) {
-			await post.updateOne({ $pull: { votesNo: req.body.userId } });
+		if (post.votesNo.includes(req.user._id)) {
+			await post.updateOne({ $pull: { votesNo: req.user._id } });
 		}
-		if (!post.votesYes.includes(req.body.userId)) {
-			await post.updateOne({ $push: { votesYes: req.body.userId } });
+		if (!post.votesYes.includes(req.user._id)) {
+			await post.updateOne({ $push: { votesYes: req.user._id } });
 			res.status(200).json("Voted Yes");
 		} else {
-			await post.updateOne({ $pull: { votesYes: req.body.userId } });
-			res.status(200).json("Voten deleted");
+			await post.updateOne({ $pull: { votesYes: req.user._id } });
+			res.status(200).json("Vote deleted");
 		}
 	} catch (err) {
 		res.status(500).json(err);
 	}
 });
 // vote no
-app.put("/posts/:id/voteNo", async (req, res) => {
+app.put("/posts/:id/votesNo", async (req, res) => {
 	// bad to have verbs in path
 	try {
 		const post = await Post.findById(req.params.id);
 
-		if (post.votesYes.includes(req.body.userId)) {
-			await post.updateOne({ $pull: { votesYes: req.body.userId } });
+		if (post.votesYes.includes(req.user._id)) {
+			await post.updateOne({ $pull: { votesYes: req.user._id } });
 		}
-		if (!post.votesNo.includes(req.body.userId)) {
-			await post.updateOne({ $push: { votesNo: req.body.userId } });
+		if (!post.votesNo.includes(req.user._id)) {
+			await post.updateOne({ $push: { votesNo: req.user._id } });
 			res.status(200).json("Voted No");
 		} else {
-			await post.updateOne({ $pull: { votesNo: req.body.userId } });
+			await post.updateOne({ $pull: { votesNo: req.user._id } });
 			res.status(200).json("Vote deleted");
 		}
 	} catch (err) {
@@ -221,12 +275,8 @@ app.put("/posts/:id/voteNo", async (req, res) => {
 app.delete("/posts/:id", async (req, res) => {
 	try {
 		const post = await Post.findById(req.params.id);
-		if (post.userId === req.body.userId) {
-			await post.deleteOne();
-			res.status(200).json("Post deleted");
-		} else {
-			res.status(403).json("You can delete only your post");
-		}
+		await post.deleteOne();
+		res.status(200).json("Post deleted");
 	} catch (err) {
 		res.status(500).json(err);
 	}

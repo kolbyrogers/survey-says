@@ -1,11 +1,11 @@
-const SERVER_URL = "https://survey-says-4200.herokuapp.com";
+// const SERVER_URL = "https://survey-says-4200.herokuapp.com";
+const SERVER_URL = "http://localhost:8080";
 var app = new Vue({
 	el: "#app",
 	data: {
 		surveys: [],
 		friends: [],
 		name: "",
-		userId: "",
 
 		showMainPage: false,
 		showExplore: false,
@@ -61,12 +61,30 @@ var app = new Vue({
 				/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
 			);
 		},
-		isUsersPost: function (postUserId) {
-			return this.userId == postUserId;
+		isUsersPost: async function (postUserId) {
+			const user = this.getUser();
+			return user._id == postUserId;
 		},
 
 		// display
+		clearInputs: function () {
+			this.name = "";
+			this.showSignIn = true;
+			this.signInEmail = "";
+			this.signInPass = "";
+			this.showRegistrationPage = false;
+			this.registerName = "";
+			this.registerEmail = "";
+			this.registerPass = "";
+			this.showMakeSurvey = false;
+			this.inputPrompt = "";
+			this.inputTitle = "";
+			this.showFindFriends = false;
+			this.searchUsername = "";
+			this.friendsFound = [];
+		},
 		hideAll: function () {
+			this.surveys = [];
 			this.resetErrors();
 			this.showSignIn = false;
 			this.showRegistrationPage = false;
@@ -106,50 +124,68 @@ var app = new Vue({
 		},
 
 		// users
+		logout: function () {
+			fetch(SERVER_URL + "/session", {
+				method: "DELETE",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded",
+				},
+			}).then((res) => {
+				this.clearInputs();
+				this.showSign();
+			});
+		},
+		getUser: async function () {
+			fetch(SERVER_URL + "/session" + this.searchUsername, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded",
+				},
+			}).then((res) => {
+				if (res.status == 200) {
+					res.json().then((data) => {
+						this.name = data.username;
+						return data;
+					});
+				} else if (res.status == 401) {
+					this.logout();
+				}
+			});
+		},
 		loginUser: function () {
-			// validation
 			this.resetErrors();
 			if (!this.isValidEmail(this.signInEmail)) {
 				this.badEmail = true;
 				this.errors.push("Please enter a valid email address");
 				return;
 			}
-			// request data
 			var data = "email=" + encodeURIComponent(this.signInEmail);
-			data += "&password=" + encodeURIComponent(this.signInPass);
-			// request
-			fetch(SERVER_URL + "/users/login", {
+			data += "&plainPassword=" + encodeURIComponent(this.signInPass);
+			fetch(SERVER_URL + "/sessions", {
 				method: "POST",
 				body: data,
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
 			}).then((res) => {
 				this.resetErrors();
-				if (res.status == 200) {
-					res.json().then((data) => {
-						this.name = data.username;
-						this.userId = data._id;
-						this.showMain();
-						return;
-					});
+				if (res.status == 201) {
+					this.showMain();
+					return;
 				}
-				if (res.status == 403) {
+				if (res.status == 401) {
+					this.signInEmail = "";
 					this.signInPass = "";
 					this.badPassword = true;
-					this.errors.push("Invalid Password");
-				}
-				if (res.status == 404) {
-					this.signInPass = "";
-					this.signInEmail = "";
 					this.badEmail = true;
-					this.errors.push("Email not found. Do you need to register?");
+					this.errors.push("Invalid Email or Password");
 				}
 				return;
 			});
 		},
 		registerUser: function () {
-			// validation
 			this.resetErrors();
 			if (this.registerName.length < 3) {
 				this.badUsername = true;
@@ -166,15 +202,14 @@ var app = new Vue({
 			if (this.errors.length) {
 				return;
 			}
-			// request data
 			var data = "username=" + encodeURIComponent(this.registerName);
 			this.name = this.registerName;
 			data += "&email=" + encodeURIComponent(this.registerEmail);
 			data += "&password=" + encodeURIComponent(this.registerPass);
-			// request
 			fetch(SERVER_URL + "/users", {
 				method: "POST",
 				body: data,
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
@@ -183,15 +218,14 @@ var app = new Vue({
 				if (res.status == 201) {
 					res.json().then((data) => {
 						this.name = data.username;
-						this.userId = data._id;
+						this.signInEmail = data.email;
+						this.showSign();
+						this.errors.push("User Registered. Sign in");
 					});
-					this.showMain();
 				}
 				if (res.status == 409) {
 					this.badEmail = true;
 					this.errors.push("Email is already associated with an account.");
-				} else {
-					alert("Server Error. Verify information and try again.");
 				}
 				this.registerName = "";
 				this.registerEmail = "";
@@ -199,10 +233,9 @@ var app = new Vue({
 			});
 		},
 		followUser: function (followId) {
-			var data = "userId=" + encodeURIComponent(this.userId);
-			fetch(SERVER_URL + "/users/" + followId + "/follow/", {
+			fetch(SERVER_URL + "/friends/" + followId, {
 				method: "PUT",
-				body: data,
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
@@ -213,10 +246,9 @@ var app = new Vue({
 			});
 		},
 		unfollowUser: function (followId) {
-			var data = "userId=" + encodeURIComponent(this.userId);
-			fetch(SERVER_URL + "/users/" + followId + "/unfollow/", {
+			fetch(SERVER_URL + "/unfriends/" + followId, {
 				method: "PUT",
-				body: data,
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
@@ -250,7 +282,7 @@ var app = new Vue({
 			});
 		},
 		getAllFriends: function () {
-			fetch(SERVER_URL + "/following/" + this.userId, {
+			fetch(SERVER_URL + "/following", {
 				method: "GET",
 			}).then((res) => {
 				if (res.status == 200) {
@@ -270,7 +302,6 @@ var app = new Vue({
 			});
 		},
 		addPost: function () {
-			// validation
 			this.resetErrors();
 			if (this.inputTitle.length < 3) {
 				this.badTitle = true;
@@ -283,15 +314,12 @@ var app = new Vue({
 			if (this.errors.length) {
 				return;
 			}
-			// request data
-			var data = "userId=" + encodeURIComponent(this.userId);
-			data += "&author=" + encodeURIComponent(this.name);
-			data += "&prompt=" + encodeURIComponent(this.inputPrompt);
+			var data = "prompt=" + encodeURIComponent(this.inputPrompt);
 			data += "&title=" + encodeURIComponent(this.inputTitle);
-			// request
 			fetch(SERVER_URL + "/posts", {
 				method: "POST",
 				body: data,
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
@@ -305,27 +333,28 @@ var app = new Vue({
 				}
 			});
 		},
-		updatePost: function () {
-			var data = "userId=" + encodeURIComponent(this.userId);
-			data += "&title=" + encodeURIComponent(this.updateTitle);
-			data += "&prompt=" + encodeURIComponent(this.updatePrompt);
-			fetch(SERVER_URL + "/posts/" + this.postId, {
-				method: "PUT",
-				body: data,
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded",
-				},
-			}).then((res) => {
-				this.updateTitle = "";
-				this.updatePrompt = "";
-				this.showMain();
-			});
-		},
+		// updatePost: function () {
+		// 	data += "&title=" + encodeURIComponent(this.updateTitle);
+		// 	data += "&prompt=" + encodeURIComponent(this.updatePrompt);
+		// 	fetch(SERVER_URL + "/posts/" + this.postId, {
+		// 		method: "PUT",
+		// 		body: data,
+		// 		credentials: "include",
+		// 		headers: {
+		// 			"Content-Type": "application/x-www-form-urlencoded",
+		// 		},
+		// 	}).then((res) => {
+		// 		this.updateTitle = "";
+		// 		this.updatePrompt = "";
+		// 		this.showMain();
+		// 	});
+		// },
 		deletePost: function (postId) {
 			var data = "userId=" + encodeURIComponent(this.userId);
 			fetch(SERVER_URL + "/posts/" + postId, {
 				method: "DELETE",
 				body: data,
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
@@ -338,10 +367,9 @@ var app = new Vue({
 			});
 		},
 		voteYes: function (postId) {
-			var data = "userId=" + encodeURIComponent(this.userId);
-			fetch(SERVER_URL + "/posts/" + postId + "/voteYes", {
+			fetch(SERVER_URL + "/posts/" + postId + "/votesYes", {
 				method: "PUT",
-				body: data,
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
@@ -354,10 +382,9 @@ var app = new Vue({
 			});
 		},
 		voteNo: function (postId) {
-			var data = "userId=" + encodeURIComponent(this.userId);
-			fetch(SERVER_URL + "/posts/" + postId + "/voteNo", {
+			fetch(SERVER_URL + "/posts/" + postId + "/votesNo", {
 				method: "PUT",
-				body: data,
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
@@ -370,7 +397,7 @@ var app = new Vue({
 			});
 		},
 		getAllFollowingPosts: function () {
-			fetch(SERVER_URL + "/posts/following/" + this.userId, {
+			fetch(SERVER_URL + "/posts/following", {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
