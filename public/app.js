@@ -399,6 +399,7 @@ var app = new Vue({
 		getAllFollowingPosts: function () {
 			fetch(SERVER_URL + "/posts/following", {
 				method: "GET",
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
