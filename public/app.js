@@ -400,9 +400,6 @@ var app = new Vue({
 			fetch(SERVER_URL + "/posts/following", {
 				method: "GET",
 				credentials: "include",
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded",
-				},
 			}).then((res) => {
 				res.json().then((data) => {
 					this.surveys = data;
