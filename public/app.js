@@ -280,7 +280,7 @@ var app = new Vue({
 			});
 		},
 		getAllFriends: function () {
-			fetch(SERVER_URL + "/following", {
+			fetch(SERVER_URL + "/friends", {
 				method: "GET",
 			}).then((res) => {
 				if (res.status == 200) {

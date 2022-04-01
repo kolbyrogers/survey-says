@@ -85,7 +85,7 @@ app.get("/users/search/:username", async (req, res) => {
 	}
 });
 //get all following
-app.get("/following", async (req, res) => {
+app.get("/friends", async (req, res) => {
 	try {
 		const following = [];
 		const user = await User.findById(req.user._id);

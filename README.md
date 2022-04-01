@@ -66,19 +66,21 @@ const Post = mongoose.model("Post", {
 | Name                      | Method | Path                    |
 | ------------------------- | ------ | ----------------------- |
 | Get all users             | GET    | /users                  |
-| Get one user              | GET    | /users/search/:username |
-| Get all users (following) | GET    | /following/:id          |
-| Login user                | POST   | /users/login            |
+| Get users by search       | GET    | /users/search/:username |
+| Get all users (following) | GET    | /friends                |
+| Login user                | POST   | /sessions               |
+| Get Session (user)        | GET    | /session                |
+| Logout                    | DELETE | /session                |
 | Create new user           | POST   | /users                  |
-| Follow user               | PUT    | /users/:id/follow       |
-| Unfollow user             | PUT    | /users/:id/unfollow     |
+| Follow user               | PUT    | /friends/:id            |
+| Unfollow user             | PUT    | /unfriends/:id          |
 | ------------------------- | ------ | ----------------------- |
 | Get all posts             | GET    | /posts                  |
-| Get all posts (following) | GET    | /posts/following/all    |
+| Get all posts (following) | GET    | /posts/following        |
 | Create new post           | POST   | /posts                  |
 | Update post               | PUT    | /posts/:id              |
-| Vote Yes on Post          | PUT    | /posts/:id/voteYes      |
-| Vote No on Post           | PUT    | /posts/:id/voteNo       |
+| Vote Yes on Post          | PUT    | /posts/:id/votesYes     |
+| Vote No on Post           | PUT    | /posts/:id/votesNo      |
 | Delete post               | DELETE | /posts/:id              |
 
 ## Password Hashing
