@@ -139,146 +139,180 @@ app.post("/users", async (req, res) => {
 });
 //follow a user
 app.put("/friends/:id", async (req, res) => {
-	if (req.user._id !== req.params.id) {
-		try {
-			const user = await User.findById(req.params.id);
-			const currentUser = await User.findById(req.user._id);
-			if (!user.followers.includes(req.user._id)) {
-				await user.updateOne({ $push: { followers: req.user._id } });
-				await currentUser.updateOne({ $push: { following: req.params.id } });
-				res.status(200).json("User followed");
-			} else {
-				res.status(403).json("You already follow this user");
+	if (req.user) {
+		if (req.user._id !== req.params.id) {
+			try {
+				const user = await User.findById(req.params.id);
+				const currentUser = await User.findById(req.user._id);
+				if (!user.followers.includes(req.user._id)) {
+					await user.updateOne({ $push: { followers: req.user._id } });
+					await currentUser.updateOne({ $push: { following: req.params.id } });
+					res.status(200).json("User followed");
+				} else {
+					res.status(403).json("You already follow this user");
+				}
+			} catch (err) {
+				console.log(err);
+				res.status(500).json(err);
 			}
-		} catch (err) {
-			console.log(err);
-			res.status(500).json(err);
+		} else {
+			res.status(403).json("Cannot follow yourself");
 		}
 	} else {
-		res.status(403).json("Cannot follow yourself");
+		res.sendStatus(401);
 	}
 });
 // unfollow a user
 app.put("/unfriends/:id", async (req, res) => {
 	// bad to have verbs in path
-	if (req.user._id !== req.params.id) {
-		try {
-			const user = await User.findById(req.params.id);
-			const currentUser = await User.findById(req.user._id);
-			if (user.followers.includes(req.user._id)) {
-				await user.updateOne({ $pull: { followers: req.user._id } });
-				await currentUser.updateOne({ $pull: { following: req.params.id } });
-				res.status(200).json("User unfollowed");
-			} else {
-				res.status(403).json("You dont follow this user");
+	if (req.user) {
+		if (req.user._id !== req.params.id) {
+			try {
+				const user = await User.findById(req.params.id);
+				const currentUser = await User.findById(req.user._id);
+				if (user.followers.includes(req.user._id)) {
+					await user.updateOne({ $pull: { followers: req.user._id } });
+					await currentUser.updateOne({ $pull: { following: req.params.id } });
+					res.status(200).json("User unfollowed");
+				} else {
+					res.status(403).json("You dont follow this user");
+				}
+			} catch (err) {
+				res.status(500).json(err);
 			}
-		} catch (err) {
-			res.status(500).json(err);
+		} else {
+			res.status(403).json("Can not unfollow yourself");
 		}
 	} else {
-		res.status(403).json("Can not unfollow yourself");
+		res.sendStatus(401);
 	}
 });
 
 // SURVEYS
 // get all posts
 app.get("/posts", (req, res) => {
-	Post.find().then((posts) => res.json(posts));
+	if (req.user) {
+		Post.find().then((posts) => res.json(posts));
+	} else {
+		res.sendStatus(401);
+	}
 });
 // get all posts (following)
 app.get("/posts/following", async (req, res) => {
-	try {
-		const currentUser = await User.findById(req.user._id);
-		const userPosts = await Post.find({ userId: currentUser._id });
-		const friendPosts = await Promise.all(
-			currentUser.following.map((friendId) => {
-				return Post.find({ userId: friendId });
-			}),
-		);
-		res.status(200).json(userPosts.concat(...friendPosts));
-	} catch (err) {
-		console.error(err);
-		res.status(500).json(err);
+	if (req.user) {
+		try {
+			const currentUser = await User.findById(req.user._id);
+			const userPosts = await Post.find({ userId: currentUser._id });
+			const friendPosts = await Promise.all(
+				currentUser.following.map((friendId) => {
+					return Post.find({ userId: friendId });
+				}),
+			);
+			res.status(200).json(userPosts.concat(...friendPosts));
+		} catch (err) {
+			console.error(err);
+			res.status(500).json(err);
+		}
+	} else {
+		res.sendStatus(401);
 	}
 });
 // create a post
 app.post("/posts", async (req, res) => {
-	const newPost = new Post({
-		userId: req.user._id,
-		author: req.user.username,
-		prompt: req.body.prompt,
-		title: req.body.title,
-	});
-	try {
-		const savedPost = await newPost.save();
-		res.status(201).json("Post created");
-	} catch (err) {
-		console.error(err);
-		res.status(500).json(err);
+	if (req.user) {
+		const newPost = new Post({
+			userId: req.user._id,
+			author: req.user.username,
+			prompt: req.body.prompt,
+			title: req.body.title,
+		});
+		try {
+			const savedPost = await newPost.save();
+			res.status(201).json("Post created");
+		} catch (err) {
+			console.error(err);
+			res.status(500).json(err);
+		}
+	} else {
+		res.sendStatus(401);
 	}
 });
 // update a post
 app.put("/posts/:id", async (req, res) => {
-	try {
-		const post = await Post.findById(req.params.id);
-		if (post.userId === req.body.userId) {
-			await post.updateOne({ $set: req.body });
-			res.status(200).json("Post updated");
-		} else {
-			res.status(403).json("You can only update your posts");
+	if (req.user) {
+		try {
+			const post = await Post.findById(req.params.id);
+			if (post.userId === req.body.userId) {
+				await post.updateOne({ $set: req.body });
+				res.status(200).json("Post updated");
+			} else {
+				res.status(403).json("You can only update your posts");
+			}
+		} catch (err) {
+			res.status(500).json(err);
 		}
-	} catch (err) {
-		res.status(500).json(err);
+	} else {
+		res.sendStatus(401);
 	}
 });
 // vote yes
 app.put("/posts/:id/votesYes", async (req, res) => {
-	// bad to have verbs in path
-	try {
-		const post = await Post.findById(req.params.id);
+	if (req.user) {
+		try {
+			const post = await Post.findById(req.params.id);
 
-		if (post.votesNo.includes(req.user._id)) {
-			await post.updateOne({ $pull: { votesNo: req.user._id } });
+			if (post.votesNo.includes(req.user._id)) {
+				await post.updateOne({ $pull: { votesNo: req.user._id } });
+			}
+			if (!post.votesYes.includes(req.user._id)) {
+				await post.updateOne({ $push: { votesYes: req.user._id } });
+				res.status(200).json("Voted Yes");
+			} else {
+				await post.updateOne({ $pull: { votesYes: req.user._id } });
+				res.status(200).json("Vote deleted");
+			}
+		} catch (err) {
+			res.status(500).json(err);
 		}
-		if (!post.votesYes.includes(req.user._id)) {
-			await post.updateOne({ $push: { votesYes: req.user._id } });
-			res.status(200).json("Voted Yes");
-		} else {
-			await post.updateOne({ $pull: { votesYes: req.user._id } });
-			res.status(200).json("Vote deleted");
-		}
-	} catch (err) {
-		res.status(500).json(err);
+	} else {
+		res.sendStatus(401);
 	}
 });
 // vote no
 app.put("/posts/:id/votesNo", async (req, res) => {
-	// bad to have verbs in path
-	try {
-		const post = await Post.findById(req.params.id);
+	if (req.user) {
+		try {
+			const post = await Post.findById(req.params.id);
 
-		if (post.votesYes.includes(req.user._id)) {
-			await post.updateOne({ $pull: { votesYes: req.user._id } });
+			if (post.votesYes.includes(req.user._id)) {
+				await post.updateOne({ $pull: { votesYes: req.user._id } });
+			}
+			if (!post.votesNo.includes(req.user._id)) {
+				await post.updateOne({ $push: { votesNo: req.user._id } });
+				res.status(200).json("Voted No");
+			} else {
+				await post.updateOne({ $pull: { votesNo: req.user._id } });
+				res.status(200).json("Vote deleted");
+			}
+		} catch (err) {
+			res.status(500).json(err);
 		}
-		if (!post.votesNo.includes(req.user._id)) {
-			await post.updateOne({ $push: { votesNo: req.user._id } });
-			res.status(200).json("Voted No");
-		} else {
-			await post.updateOne({ $pull: { votesNo: req.user._id } });
-			res.status(200).json("Vote deleted");
-		}
-	} catch (err) {
-		res.status(500).json(err);
+	} else {
+		res.sendStatus(401);
 	}
 });
 // delete a post
 app.delete("/posts/:id", async (req, res) => {
-	try {
-		const post = await Post.findById(req.params.id);
-		await post.deleteOne();
-		res.status(200).json("Post deleted");
-	} catch (err) {
-		res.status(500).json(err);
+	if (req.user) {
+		try {
+			const post = await Post.findById(req.params.id);
+			await post.deleteOne();
+			res.status(200).json("Post deleted");
+		} catch (err) {
+			res.status(500).json(err);
+		}
+	} else {
+		res.sendStatus(401);
 	}
 });
 

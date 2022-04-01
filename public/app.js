@@ -7,7 +7,7 @@ var app = new Vue({
 		friends: [],
 		name: "",
 
-		showMainPage: false,
+		showMainPage: true,
 		showExplore: false,
 
 		// form validation
@@ -21,7 +21,7 @@ var app = new Vue({
 		badPrompt: false,
 
 		// sign in page
-		showSignIn: true,
+		showSignIn: false,
 		signInEmail: "",
 		signInPass: "",
 
@@ -217,7 +217,6 @@ var app = new Vue({
 				this.resetErrors();
 				if (res.status == 201) {
 					console.log("User created. Logging in...");
-					this.name = data.username;
 					this.signInEmail = this.registerEmail;
 					this.signInPass = this.registerPass;
 					this.loginUser();
@@ -410,6 +409,8 @@ var app = new Vue({
 	},
 	computed: {},
 	created: function () {
+		this.showMain();
+		this.getUser();
 		console.log(`App is ready.`);
 	},
 });
