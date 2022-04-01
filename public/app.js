@@ -137,7 +137,7 @@ var app = new Vue({
 			});
 		},
 		getUser: async function () {
-			fetch(SERVER_URL + "/session" + this.searchUsername, {
+			fetch(SERVER_URL + "/session", {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
