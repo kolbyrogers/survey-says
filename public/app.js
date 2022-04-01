@@ -1,5 +1,5 @@
-const SERVER_URL = "https://survey-says-4200.herokuapp.com";
-// const SERVER_URL = "http://localhost:8080";
+// const SERVER_URL = "https://survey-says-4200.herokuapp.com";
+const SERVER_URL = "http://localhost:8080";
 var app = new Vue({
 	el: "#app",
 	data: {
@@ -216,12 +216,11 @@ var app = new Vue({
 			}).then((res) => {
 				this.resetErrors();
 				if (res.status == 201) {
-					res.json().then((data) => {
-						this.name = data.username;
-						this.signInEmail = data.email;
-						this.showSign();
-						this.errors.push("User Registered. Sign in");
-					});
+					console.log("User created. Logging in...");
+					this.name = data.username;
+					this.signInEmail = this.registerEmail;
+					this.signInPass = this.registerPass;
+					this.loginUser();
 				}
 				if (res.status == 409) {
 					this.badEmail = true;
