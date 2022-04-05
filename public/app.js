@@ -264,13 +264,14 @@ var app = new Vue({
 			this.friendsFound = [];
 			fetch(SERVER_URL + "/users/search/" + this.searchUsername, {
 				method: "GET",
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
 			}).then((res) => {
 				if (res.status == 200) {
 					res.json().then((data) => {
-						this.friendsFound = data.filter((friend) => friend.username != this.name);
+						this.friendsFound = data.filter((friend) => friend.username != this.user.username);
 						if (!this.friendsFound.length) {
 							this.errors.push("No users found :(");
 						}
