@@ -63,7 +63,6 @@ var app = new Vue({
 			);
 		},
 		isUsersPost: function (postUserId) {
-			console.log("is user's:", this.user._id == postUserId);
 			return this.user._id == postUserId;
 		},
 
