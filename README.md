@@ -1,9 +1,5 @@
 # SurveySays
 
-## Prototype
-
-### https://www.figma.com/file/MjTfOjQ6Nz8YsibVyuYyBv/Untitled?node-id=0%3A1
-
 ## Heroku Deployment
 
 ### https://survey-says-4200.herokuapp.com/
@@ -14,29 +10,29 @@
 
 ```js
 const User = mongoose.model("User", {
-	username: {
-		type: String,
-		required: true,
-		unique: true,
-	},
-	email: {
-		type: String,
-		required: true,
-		unique: true,
-	},
-	password: {
-		type: String,
-		required: true,
-		min: [8, "Password must be at least 8 characters"],
-	},
-	followers: {
-		type: Array,
-		default: [],
-	},
-	following: {
-		type: Array,
-		default: [],
-	},
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+    min: [8, "Password must be more than 8 characters"],
+  },
+  followers: {
+    type: Array,
+    default: [],
+  },
+  following: {
+    type: Array,
+    default: [],
+  },
 });
 ```
 
@@ -44,29 +40,30 @@ const User = mongoose.model("User", {
 
 ```js
 const Post = mongoose.model("Post", {
-	userId: String,
-	author: String,
-	prompt: String,
-	title: String,
-	votesYes: {
-		type: Array,
-		default: [],
-	},
-	votesNo: {
-		type: Array,
-		default: [],
-	},
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  author: String,
+  prompt: String,
+  title: String,
+  votesYes: {
+    type: Array,
+    default: [],
+  },
+  votesNo: {
+    type: Array,
+    default: [],
+  },
 });
 ```
 
 ## REST Endpoints
 
-### NEED UPDATING
-
 | Name                      | Method | Path                    |
 | ------------------------- | ------ | ----------------------- |
 | Get all users             | GET    | /users                  |
-| Get users by search       | GET    | /users/search/:username |
+| Get users by search       | GET    | /users/:username |
 | Get all users (following) | GET    | /friends                |
 | Login user                | POST   | /sessions               |
 | Get Session (user)        | GET    | /session                |
@@ -90,8 +87,11 @@ const Post = mongoose.model("Post", {
 const hashedPassword = await bcrypt.hash(req.body.password, 5);
 // create new user
 const newUser = new User({
-	username: req.body.username,
-	email: req.body.email,
-	password: hashedPassword,
+  username: req.body.username,
+  email: req.body.email,
+  password: hashedPassword,
 });
 ```
+## Prototype
+
+### https://www.figma.com/file/MjTfOjQ6Nz8YsibVyuYyBv/Untitled?node-id=0%3A1
