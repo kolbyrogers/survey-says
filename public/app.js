@@ -6,6 +6,7 @@ var app = new Vue({
 		surveys: [],
 		friends: [],
 		name: "",
+		user: null,
 
 		showMainPage: true,
 		showExplore: false,
@@ -61,8 +62,9 @@ var app = new Vue({
 				/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
 			);
 		},
-		isUsersPost: async function (postUserId) {
-			return false;
+		isUsersPost: function (postUserId) {
+			console.log("is user's:", this.user._id == postUserId);
+			return this.user._id == postUserId;
 		},
 
 		// display
@@ -138,12 +140,14 @@ var app = new Vue({
 		getUser: async function () {
 			fetch(SERVER_URL + "/session", {
 				method: "GET",
+				credentials: "include",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
 			}).then((res) => {
 				if (res.status == 200) {
 					res.json().then((data) => {
+						this.user = data;
 						return data;
 					});
 				} else if (res.status == 401) {
@@ -170,6 +174,7 @@ var app = new Vue({
 			}).then((res) => {
 				this.resetErrors();
 				if (res.status == 201) {
+					this.getUser();
 					this.showMain();
 					return;
 				}

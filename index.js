@@ -318,10 +318,16 @@ app.delete("/posts/:id", async (req, res) => {
 	console.log("- Delete post -");
 	if (req.user) {
 		try {
-			const post = await Post.findById(req.params.id);
-			await post.deleteOne();
-			res.status(200).json("Post deleted");
+			const post = await Post.findOne({ _id: req.params.id, userId: req.user._id });
+			console.log("User is the author. Deleting...");
+			if (post) {
+				await post.delete();
+				res.status(200).json("Post deleted");
+			} else {
+				res.status(404).json("")
+			}
 		} catch (err) {
+			console.error(err);
 			res.status(500).json(err);
 		}
 	} else {
