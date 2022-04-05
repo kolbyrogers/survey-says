@@ -262,7 +262,7 @@ var app = new Vue({
 		searchForFriends: function () {
 			this.resetErrors();
 			this.friendsFound = [];
-			fetch(SERVER_URL + "/users/search/" + this.searchUsername, {
+			fetch(SERVER_URL + "/users/" + this.searchUsername, {
 				method: "GET",
 				credentials: "include",
 				headers: {

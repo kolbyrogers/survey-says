@@ -70,9 +70,7 @@ app.get("/users", (req, res) => {
 	User.find().then((users) => res.json(users));
 });
 //search for users
-app.get("/users/search/:username", async (req, res) => {
-	// bad to have verbs in path
-	// should change path to use query params
+app.get("/users/:username", async (req, res) => {
 	try {
 		const query = { username: new RegExp(req.params.username, "i") };
 		const users = await User.find(query);
@@ -324,7 +322,7 @@ app.delete("/posts/:id", async (req, res) => {
 				await post.delete();
 				res.status(200).json("Post deleted");
 			} else {
-				res.status(404).json("")
+				res.status(404).json("");
 			}
 		} catch (err) {
 			console.error(err);
