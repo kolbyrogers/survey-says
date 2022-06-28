@@ -1,97 +1,126 @@
-# SurveySays
+<div id="top"></div>
 
-## Heroku Deployment
+<!-- PROJECT SHIELDS -->
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
 
-### https://survey-says-4200.herokuapp.com/
 
-## Resources
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
 
-### Users:
+  <h3 align="center">Survey-Says</h3>
 
-```js
-const User = mongoose.model("User", {
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-    min: [8, "Password must be more than 8 characters"],
-  },
-  followers: {
-    type: Array,
-    default: [],
-  },
-  following: {
-    type: Array,
-    default: [],
-  },
-});
-```
+  <p align="center">
+    An awesome social media app to survey your friends!
+    <br />
+    <a href="https://survey-says-4200.herokuapp.com/">View Demo</a>
+    ·
+    <a href="https://github.com/kolbyrogers/survey-says/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/kolbyrogers/survey-says/issues">Request Feature</a>
+  </p>
+</div>
 
-### Posts:
 
-```js
-const Post = mongoose.model("Post", {
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
-  author: String,
-  prompt: String,
-  title: String,
-  votesYes: {
-    type: Array,
-    default: [],
-  },
-  votesNo: {
-    type: Array,
-    default: [],
-  },
-});
-```
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+  </ol>
+</details>
 
-## REST Endpoints
 
-| Name                      | Method | Path                    |
-| ------------------------- | ------ | ----------------------- |
-| Get all users             | GET    | /users                  |
-| Get users by search       | GET    | /users/:username |
-| Get all users (following) | GET    | /friends                |
-| Login user                | POST   | /sessions               |
-| Get Session (user)        | GET    | /session                |
-| Logout                    | DELETE | /session                |
-| Create new user           | POST   | /users                  |
-| Follow user               | PUT    | /friends/:id            |
-| Unfollow user             | PUT    | /unfriends/:id          |
-| ------------------------- | ------ | ----------------------- |
-| Get all posts             | GET    | /posts                  |
-| Get all posts (following) | GET    | /posts/following        |
-| Create new post           | POST   | /posts                  |
-| Update post               | PUT    | /posts/:id              |
-| Vote Yes on Post          | PUT    | /posts/:id/votesYes     |
-| Vote No on Post           | PUT    | /posts/:id/votesNo      |
-| Delete post               | DELETE | /posts/:id              |
+<!-- ABOUT THE PROJECT -->
+## About The Project
 
-## Password Hashing
+This full stack social media app allows users to post surveys, respond to surveys, and follow friends!
 
-```js
-// salt and hash password
-const hashedPassword = await bcrypt.hash(req.body.password, 5);
-// create new user
-const newUser = new User({
-  username: req.body.username,
-  email: req.body.email,
-  password: hashedPassword,
-});
-```
-## Prototype
+Project features:
+* An interactive, single-page client interface
+* RESTful API
+* Client-side and server-side data validation
+* Data persistence
+* User registration
+* User authentication
+* User authorization
+* Session management
+* Dark mode
 
-### https://www.figma.com/file/MjTfOjQ6Nz8YsibVyuYyBv/Untitled?node-id=0%3A1
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+### Built With
+
+* Node.js
+* Express
+* Vue.js
+* MongoDB
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+<!-- ROADMAP -->
+## Roadmap
+
+- [x] Add Changelog
+- [x] Add back to top links
+- [ ] Add Additional Templates w/ Examples
+- [ ] Add "components" document to easily copy & paste sections of the readme
+- [ ] Multi-language Support
+    - [ ] Chinese
+    - [ ] Spanish
+
+See the [open issues](https://github.com/kolbyrogers/survey-says/issues) for a full list of proposed features (and known issues).
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+<!-- CONTRIBUTING -->
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/kolbyrogers/survey-says.svg?style=for-the-badge
+[contributors-url]: https://github.com/kolbyrogers/survey-says/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/kolbyrogers/survey-says.svg?style=for-the-badge
+[forks-url]: https://github.com/kolbyrogers/survey-says/network/members
+[stars-shield]: https://img.shields.io/github/stars/kolbyrogers/survey-says.svg?style=for-the-badge
+[stars-url]: https://github.com/kolbyrogers/survey-says/stargazers
+[issues-shield]: https://img.shields.io/github/issues/kolbyrogers/survey-says.svg?style=for-the-badge
+[issues-url]: https://github.com/kolbyrogers/survey-says/issues
+[license-shield]: https://img.shields.io/github/license/kolbyrogers/survey-says.svg?style=for-the-badge
+[license-url]: https://github.com/kolbyrogers/survey-says/LICENSE.txt
