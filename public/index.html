@@ -225,7 +225,7 @@
 						<!-- END MAIN PAGE -->
 						<!-- EXPLORE PAGE -->
 						<div v-if="showExplore">
-							<h1 class="p-5 text-center">Explore</h1>
+							<h1 id="exploreTitle" class="p-5 text-center">Explore</h1>
 							<button class="btn-lg btn-secondary m-3" v-on:click="showMain">Home</button>
 							<div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
 								<div v-for="survey in surveys" class="col">
