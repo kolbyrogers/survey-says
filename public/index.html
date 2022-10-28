@@ -107,8 +107,8 @@
 								<button id="registerButton" type="button" class="btn-lg btn-success m-3" v-on:click="registerUser">
 									Register
 								</button>
-								<div v-if="errors.length">
-									<div id="registerErrors" class="m-3" v-for="error in errors">
+								<div id="registerErrors" v-if="errors.length">
+									<div class="m-3" v-for="error in errors">
 										<p>{{ error }}</p>
 									</div>
 								</div>
