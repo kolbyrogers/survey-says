@@ -184,7 +184,7 @@
 							<button id="friendsButton" class="btn-lg btn-primary m-3" v-on:click="findFriends">Friends</button>
 							<button id="exploreButton" class="btn-lg btn-secondary m-3" v-on:click="showExplorePage">Explore</button>
 							<button id="logoutButton" class="btn-lg btn-danger m-3" v-on:click="logout">Logout</button>
-							<div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
+							<div id="friendFeed" class="row row-cols-1 row-cols-md-2 g-4 mt-2">
 								<div v-for="survey in surveys" class="col">
 									<div class="card bg-dark border-primary mb-3">
 										<div class="card-header border-primary">
