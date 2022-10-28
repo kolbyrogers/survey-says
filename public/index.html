@@ -118,7 +118,7 @@
 						<!-- FINDFRIENDS PAGE -->
 						<div v-if="showFindFriends">
 							<h1 id="friendTitle" class="p-5 text-center">Friends</h2>
-							<button class="btn-lg btn-secondary m-3" v-on:click="showMain">Home</button>
+							<button class="home-button btn-lg btn-secondary m-3" v-on:click="showMain">Home</button>
 							<div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
 								<div class="p-3 col" v-for="friend in friends">
 									<div class="card bg-dark border-success mb-3">
@@ -267,7 +267,7 @@
 						<!-- ADD SURVEY PAGE -->
 						<div v-if="showMakeSurvey">
 							<h2 id="makeSurveyTitle" class="p-5 text-center">Fill in the form to create a survey</h2>
-							<form class="px-5 mx-5" onkeydown="return event.key != 'Enter';">
+							<form class="home-button px-5 mx-5" onkeydown="return event.key != 'Enter';">
 								<div class="mb-3">
 									<label for="inputTitle" class="form-label">Title</label>
 									<input
@@ -289,7 +289,7 @@
 								<button type="button" class="btn-lg btn-success m-3" v-on:click="addPost">
 									Create
 								</button>
-								<button type="button" class="btn-lg btn-danger m-3" v-on:click="showMain">
+								<button type="button" class="home-button btn-lg btn-danger m-3" v-on:click="showMain">
 									Cancel
 								</button>
 								<div v-if="errors.length">
