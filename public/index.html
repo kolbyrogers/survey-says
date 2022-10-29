@@ -286,10 +286,10 @@
 										rows="3"
 									></textarea>
 								</div>
-								<button type="button" class="btn-lg btn-success m-3" v-on:click="addPost">
+								<button id="createSurveyButton" type="button" class="btn-lg btn-success m-3" v-on:click="addPost">
 									Create
 								</button>
-								<button type="button" class="home-button btn-lg btn-danger m-3" v-on:click="showMain">
+								<button id="cancelCreateSurveyButton" class="home-button btn-lg btn-danger m-3" v-on:click="showMain">
 									Cancel
 								</button>
 								<div v-if="errors.length">
