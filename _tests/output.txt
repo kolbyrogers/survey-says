@@ -1,0 +1,122 @@
+Feature: Home page # features/survey_says/home_page.feature:1
+
+  Scenario: Friend feed shows on home page  # features/survey_says/home_page.feature:3
+    Given I navigate to survey-says         # features/steps/survey_says_steps.py:5
+    And I login with valid credentials      # features/steps/survey_says_steps.py:32
+    Then I expect to be on the home page    # features/steps/survey_says_steps.py:13
+    And I expect to see the friend feed     # features/steps/survey_says_steps.py:171
+
+  Scenario: Navigate to explore page        # features/survey_says/home_page.feature:9
+    Given I navigate to survey-says         # features/steps/survey_says_steps.py:5
+    When I click the explore button         # features/steps/survey_says_steps.py:177
+    Then I expect to be on the explore page # features/steps/survey_says_steps.py:213
+
+  Scenario: Navigate to friends page        # features/survey_says/home_page.feature:14
+    Given I navigate to survey-says         # features/steps/survey_says_steps.py:5
+    When I click the friends button         # features/steps/survey_says_steps.py:192
+    Then I expect to be on the friends page # features/steps/survey_says_steps.py:219
+
+  Scenario: Navigate to make survey page        # features/survey_says/home_page.feature:19
+    Given I navigate to survey-says             # features/steps/survey_says_steps.py:5
+    When I click the make survey button         # features/steps/survey_says_steps.py:199
+    Then I expect to be on the make survey page # features/steps/survey_says_steps.py:225
+
+  Scenario: Logout button works           # features/survey_says/home_page.feature:24
+    Given I navigate to survey-says       # features/steps/survey_says_steps.py:5
+    When I click the logout button        # features/steps/survey_says_steps.py:184
+    Then I expect to be on the login page # features/steps/survey_says_steps.py:25
+
+Feature: Login page # features/survey_says/login_page.feature:1
+
+  Scenario: Log in with invalid credentials  # features/survey_says/login_page.feature:3
+    Given I navigate to survey-says          # features/steps/survey_says_steps.py:5
+    When I login with invalid credentials    # features/steps/survey_says_steps.py:51
+    Then I expect to see login errors        # features/steps/survey_says_steps.py:68
+
+  Scenario: Cant log in without entering password  # features/survey_says/login_page.feature:8
+    Given I navigate to survey-says                # features/steps/survey_says_steps.py:5
+    When I try to login with no password           # features/steps/survey_says_steps.py:43
+    Then I expect to not be able to login          # features/steps/survey_says_steps.py:61
+
+  Scenario: Log in with valid credentials  # features/survey_says/login_page.feature:13
+    Given I navigate to survey-says        # features/steps/survey_says_steps.py:5
+    When I login with valid credentials    # features/steps/survey_says_steps.py:32
+    Then I expect to be on the home page   # features/steps/survey_says_steps.py:13
+    When I click the logout button         # features/steps/survey_says_steps.py:184
+    Then I expect to be on the login page  # features/steps/survey_says_steps.py:25
+
+Feature: Make survey # features/survey_says/make_survey.feature:1
+
+  Scenario: Create with no title                   # features/survey_says/make_survey.feature:3
+    Given I navigate to survey-says                # features/steps/survey_says_steps.py:5
+    When I login with valid credentials            # features/steps/survey_says_steps.py:32
+    Then I expect to be on the home page           # features/steps/survey_says_steps.py:13
+    When I click the make survey button            # features/steps/survey_says_steps.py:199
+    Then I expect to be on the make survey page    # features/steps/survey_says_steps.py:225
+    When I enter "Test Title" into the title field # features/steps/survey_says_steps.py:231
+    And I click the create survey button           # features/steps/survey_says_steps.py:245
+    Then I expect to see the prompt error          # features/steps/survey_says_steps.py:252
+
+  Scenario: Create with no prompt                           # features/survey_says/make_survey.feature:13
+    Given I navigate to survey-says                         # features/steps/survey_says_steps.py:5
+    When I click the make survey button                     # features/steps/survey_says_steps.py:199
+    Then I expect to be on the make survey page             # features/steps/survey_says_steps.py:225
+    When I enter "Test Prompt" into the survey prompt field # features/steps/survey_says_steps.py:238
+    And I click the create survey button                    # features/steps/survey_says_steps.py:245
+    Then I expect to see the title error                    # features/steps/survey_says_steps.py:259
+
+  Scenario: Create with no title or prompt      # features/survey_says/make_survey.feature:21
+    Given I navigate to survey-says             # features/steps/survey_says_steps.py:5
+    When I click the make survey button         # features/steps/survey_says_steps.py:199
+    Then I expect to be on the make survey page # features/steps/survey_says_steps.py:225
+    And I click the create survey button        # features/steps/survey_says_steps.py:245
+    Then I expect to see the title error        # features/steps/survey_says_steps.py:259
+    And I expect to see the prompt error        # features/steps/survey_says_steps.py:252
+    When I navigate to survey-says              # features/steps/survey_says_steps.py:5
+    When I click the logout button              # features/steps/survey_says_steps.py:184
+    Then I expect to be on the login page       # features/steps/survey_says_steps.py:25
+
+Feature: Register page # features/survey_says/register_page.feature:1
+
+  Scenario: Register with no name        # features/survey_says/register_page.feature:3
+    Given I navigate to survey-says      # features/steps/survey_says_steps.py:5
+    When I navigate to the register page # features/steps/survey_says_steps.py:117
+    And I register with no name          # features/steps/survey_says_steps.py:160
+    Then I expect to see username error  # features/steps/survey_says_steps.py:103
+
+  Scenario: Register as existing user       # features/survey_says/register_page.feature:9
+    Given I navigate to survey-says         # features/steps/survey_says_steps.py:5
+    When I navigate to the register page    # features/steps/survey_says_steps.py:117
+    And I register as an existing user      # features/steps/survey_says_steps.py:125
+    Then I expect to see unique email error # features/steps/survey_says_steps.py:89
+
+  Scenario: Register with no email       # features/survey_says/register_page.feature:15
+    Given I navigate to survey-says      # features/steps/survey_says_steps.py:5
+    When I navigate to the register page # features/steps/survey_says_steps.py:117
+    And I register with no email         # features/steps/survey_says_steps.py:144
+    Then I expect to see email error     # features/steps/survey_says_steps.py:96
+
+  Scenario: Register with no email, password, or name  # features/survey_says/register_page.feature:21
+    Given I navigate to survey-says                    # features/steps/survey_says_steps.py:5
+    When I navigate to the register page               # features/steps/survey_says_steps.py:117
+    And I register with no email, password, or name    # features/steps/survey_says_steps.py:153
+    Then I expect to see email error                   # features/steps/survey_says_steps.py:96
+    And I expect to see password error                 # features/steps/survey_says_steps.py:110
+    And I expect to see username error                 # features/steps/survey_says_steps.py:103
+
+  Scenario: Register with no password    # features/survey_says/register_page.feature:29
+    Given I navigate to survey-says      # features/steps/survey_says_steps.py:5
+    When I navigate to the register page # features/steps/survey_says_steps.py:117
+    And I register with no password      # features/steps/survey_says_steps.py:135
+    Then I expect to see password error  # features/steps/survey_says_steps.py:110
+
+  Scenario: Register as a new user       # features/survey_says/register_page.feature:35
+    Given I navigate to survey-says      # features/steps/survey_says_steps.py:5
+    When I navigate to the register page # features/steps/survey_says_steps.py:117
+    And I register as a new user         # features/steps/survey_says_steps.py:76
+    Then I expect to be on the home page # features/steps/survey_says_steps.py:13
+
+6 features passed, 0 failed, 0 skipped
+27 scenarios passed, 0 failed, 0 skipped
+142 steps passed, 0 failed, 0 skipped, 0 undefined
+Took 0m48.970s
