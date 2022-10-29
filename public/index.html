@@ -292,7 +292,7 @@
 								<button id="cancelCreateSurveyButton" class="home-button btn-lg btn-danger m-3" v-on:click="showMain">
 									Cancel
 								</button>
-								<div v-if="errors.length">
+								<div id="creationErrors" v-if="errors.length">
 									<div class="m-3" v-for="error in errors">
 										<h5>{{ error }}</h5>
 									</div>
